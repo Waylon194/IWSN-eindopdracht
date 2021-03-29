@@ -1,0 +1,16 @@
+<nb-card class="cards-container">
+  <nb-card size="large" class="chart-card">
+    <nb-card-header>
+      <span class="stats">
+        <span class="caption">Verbruikt:</span>
+        <span>{{totalPowerConsumption}} <span class="caption">kWh</span></span>
+      </span>
+      <span class="stats">
+        <span class="caption">Kosten:</span>
+        <span>{{ totalPowerConsumption * 0.21 | currency:'EUR':'symbol-narrow':'1.2-2' }},- <span class="caption">EUR</span></span>
+      </span>
+    </nb-card-header>
+
+    <ngx-electricity-chart [data]="chartData"></ngx-electricity-chart>
+  </nb-card>
+</nb-card>

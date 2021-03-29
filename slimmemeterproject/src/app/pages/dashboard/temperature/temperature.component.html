@@ -1,0 +1,20 @@
+<nb-card size="large">
+  <nb-tabset fullWidth>
+    <nb-tab tabTitle="Actueel verbruik">
+      <div class="slider-container">
+        <ngx-temperature-dragger [(value)]="temperature"
+        [min]="0" [max]="5" [disableArcColor]="theme.arcEmpty"
+        [fillColors]="theme.arcFill" [thumbBg]="theme.thumbBg" [thumbBorderColor]="theme.thumbBorder">
+          <div class="slider-value-container">
+            <div class="value temperature h1">
+              {{ temperature }}
+            </div>
+            <div class="desc">
+              kWh
+            </div>
+          </div>
+        </ngx-temperature-dragger>
+      </div>
+    </nb-tab>
+  </nb-tabset>
+</nb-card>
