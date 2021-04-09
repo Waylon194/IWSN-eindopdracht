@@ -10,6 +10,7 @@ import { IwsnBackendService } from '../../../iwsn-backend/iwsn-backend.service';
 })
 
 export class WeatherComponent {
+  //Temperature LM35
   temperature: Number;
 
   todayDate = new Date();
@@ -21,7 +22,7 @@ export class WeatherComponent {
   ngOnInit(): void {    
     this.backend_service.getLatestTemp().subscribe(item => {     
       this.temperature = <Number> item.datagram.telegram.instantaneousElectricityUsage;      
-      console.log(item);
+      console.log(item + " degrees celcius");
     })
   }
 }
