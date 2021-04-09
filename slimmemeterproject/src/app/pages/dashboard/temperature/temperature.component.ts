@@ -1,8 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbThemeService } from '@nebular/theme';
-import { TemperatureHumidityData } from '../../../@core/data/temperature-humidity';
 import { takeWhile } from 'rxjs/operators';
-import { forkJoin, Observable } from 'rxjs';
 import { IwsnBackendService } from '../../../iwsn-backend/iwsn-backend.service'; 
 
 @Component({

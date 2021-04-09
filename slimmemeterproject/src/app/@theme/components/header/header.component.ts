@@ -11,16 +11,9 @@ import { Subject } from 'rxjs';
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-
   private destroy$: Subject<void> = new Subject<void>();
-  userPictureOnly: boolean = false;
-  user: any;
 
   themes = [
-    {
-      value: 'default',
-      name: 'Light',
-    },
     {
       value: 'dark',
       name: 'Dark',
@@ -33,11 +26,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       value: 'corporate',
       name: 'Corporate',
     },
+    {
+      value: 'default',
+      name: 'Light',
+    },
   ];
 
   currentTheme = 'default';
-
-  userMenu = [ { title: 'Profile' }, { title: 'Log out' } ];
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
@@ -55,7 +50,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         map(([, currentBreakpoint]) => currentBreakpoint.width < xl),
         takeUntil(this.destroy$),
       )
-      .subscribe((isLessThanXl: boolean) => this.userPictureOnly = isLessThanXl);
 
     this.themeService.onThemeChange()
       .pipe(
@@ -77,7 +71,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleSidebar(): boolean {
     this.sidebarService.toggle(true, 'menu-sidebar');
     this.layoutService.changeLayoutSize();
-
     return false;
   }
 
