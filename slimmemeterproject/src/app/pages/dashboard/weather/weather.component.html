@@ -1,53 +1,10 @@
-<nb-card size="medium">
+<nb-card size="tiny" class="solar-card">
   <nb-card-body>
     <span class="h3 location">Breda</span>
-    <span class="date">Ma 24 Maart</span>
-
+    <span class="date">{{myDate | date: 'fullDate' }}</span>
     <div class="today">
-      <span class="today-temperature h1">18&deg;</span>
+      <span class="today-temperature h1">18&deg; celcius</span>
       <nb-icon icon="sun-outline" pack="eva" class="today-icon"></nb-icon>
-    </div>
-
-    <div class="today-details">
-      <div class="parameter">
-        <span class="caption parameter-name">max</span>
-        <span class="parameter-value">20&deg;</span>
-      </div>
-      <div class="parameter">
-        <span class="caption parameter-name">min</span>
-        <span class="parameter-value">15&deg;</span>
-      </div>
-      <div class="parameter">
-        <span class="caption parameter-name">wind</span>
-        <span class="parameter-value">4 km/h</span>
-      </div>
-      <div class="parameter">
-        <span class="caption parameter-name">hum</span>
-        <span class="parameter-value">66%</span>
-      </div>
-    </div>
-
-    <div class="weekly-forecast">
-      <div class="day">
-        <span class="caption">Zo</span>
-        <i class="weather-icon ion-ios-cloudy-outline"></i>
-        <span class="temperature">17&deg;</span>
-      </div>
-      <div class="day">
-        <span class="caption">Ma</span>
-        <i class="weather-icon ion-ios-sunny-outline"></i>
-        <span class="temperature">19&deg;</span>
-      </div>
-      <div class="day">
-        <span class="caption">Di</span>
-        <i class="weather-icon ion-ios-rainy-outline"></i>
-        <span class="temperature">22&deg;</span>
-      </div>
-      <div class="day">
-        <span class="caption">Woe</span>
-        <i class="weather-icon ion-ios-partlysunny-outline"></i>
-        <span class="temperature">21&deg;</span>
-      </div>
     </div>
   </nb-card-body>
 </nb-card>

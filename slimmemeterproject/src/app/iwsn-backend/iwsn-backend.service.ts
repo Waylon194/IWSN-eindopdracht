@@ -10,8 +10,13 @@ import { SmartMeterMeasurement } from '../models/MongoDB';
 })
 export class IwsnBackendService {
   constructor(private http: HttpClient) { }
-
   // latest/electric/all/async
+
+  getLatestTemp() : Observable<SmartMeterMeasurement>{
+    //Single
+    return this.http.get<SmartMeterMeasurement>("http://localhost:5000/backend-api/v1/iwsn/latest/temp")
+    .pipe(map((res: any) => res))
+  }
 
   getLatestMeasurement() : Observable<SmartMeterMeasurement>{
     //Single
