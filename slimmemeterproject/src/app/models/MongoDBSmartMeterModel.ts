@@ -1,4 +1,4 @@
-import { Datagram } from '../models/Datagram'
+import { Datagram } from './Datagram'
 
 export interface SmartMeterMeasurement{
     id: number,
