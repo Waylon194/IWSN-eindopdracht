@@ -12,17 +12,19 @@ namespace IWSN_Backend_Server.Controllers.ControllerInstances
     /// <summary>
     /// Controller class of the REST API (via HTTP communication)
     /// </summary>
-    [Route(IWSNControllerRouteSettings.IWSNMainRouteName)]
+    [Route(IWSNControllerRouteSettings.IWSNMainRouteName_SM)]
     [ApiController]
-    public class IWSNController : ControllerBase
+    public class IWSNSmartMeterController : ControllerBase
     {
-        private readonly MongoDBService _SensorMeasurementService;
+        private readonly MongoDBSmartMeterService _SensorMeasurementService;
+        private readonly MongoDBTemperatureService _TempMeasurementService;
+
         private readonly int MAX_LATEST_RANGE_ALLOWED = 20;
 
-        public IWSNController()
+        public IWSNSmartMeterController()
         {
             // Assign the service to the class variable
-            this._SensorMeasurementService = MongoDBService.Instance;
+            this._SensorMeasurementService = MongoDBSmartMeterService.Instance;
         }
 
         // ROUTE: .../iwsn/all

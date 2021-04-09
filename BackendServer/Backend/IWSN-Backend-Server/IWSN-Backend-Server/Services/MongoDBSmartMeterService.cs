@@ -17,47 +17,46 @@ namespace IWSN_Backend_Server.Services
     /// This class handles the Mongo database and MQTT link
     /// -- Gets a MQTT measurement every 20s
     /// </summary>
-    public class MongoDBService
+    public class MongoDBSmartMeterService
     {
-        private readonly IMongoCollection<MongoDBDatagramModel> _SensorMeasurementDBCollection;
+        private readonly IMongoCollection<MongoDBDatagramModel> _SmartMeterMeasurementDBCollection;
 
         // parsers and processors
         private Parser _SmartMeterParser;
         private TelegramProcessor processor;
 
-        private static MongoDBService _Instance = null; // singleton instance object
+        private static MongoDBSmartMeterService _Instance = null; // singleton instance object
 
-        public static MongoDBService Instance
+        public static MongoDBSmartMeterService Instance
         {
             get
             {
                 if (_Instance == null)
                 {
-                    _Instance = new MongoDBService(new IWSNDatabaseSettings());
+                    _Instance = new MongoDBSmartMeterService(new IWSNDatabaseSettings());
                 }
                 return _Instance;
             }
         }
 
-        public MongoDBService(IWSNDatabaseSettings settings)
+        public MongoDBSmartMeterService(IWSNDatabaseSettings settings)
         {
             // Setting up the connection to the database
             MongoClient mongoDbClient = new MongoClient(settings.DBConnectionString); // connect to the MongoDB via the DB connection string 
             IMongoDatabase databaseData = mongoDbClient.GetDatabase(settings.DatabaseName); // get the IMongoDatabase object via the MongoDB client via a collection
 
             // Assign the db values to the readonly value
-            this._SensorMeasurementDBCollection = databaseData.GetCollection<MongoDBDatagramModel>(settings.DBCollectionName); // get the IMongoCollection object from the IMongoDatabase object
+            this._SmartMeterMeasurementDBCollection = databaseData.GetCollection<MongoDBDatagramModel>(settings.DBCollectionName_SmartMeter); // get the IMongoCollection object from the IMongoDatabase object
 
             // Create the parser & processor
             this._SmartMeterParser = new Parser();
             this.processor = new TelegramProcessor();
         }
 
-        public void insertDatagramMeasurement(string json)
+        public void InsertDatagramMeasurement(string json)
         {
             var datagramShell = JsonSerializer.Deserialize<DatagramShell>(json);
             var result = this._SmartMeterParser.Parse(datagramShell.datagram.p1).Result.ToList().First();
-            Console.WriteLine();
 
             ProcessedDatagram pDatagram = new ProcessedDatagram();
             pDatagram.Telegram = processor.Process(result);
@@ -65,7 +64,7 @@ namespace IWSN_Backend_Server.Services
             pDatagram.CarCharger = datagramShell.datagram.s0;
             pDatagram.SolarPanel = datagramShell.datagram.s1;
 
-            this._SensorMeasurementDBCollection.InsertOneAsync(new MongoDBDatagramModelBuilder()
+            this._SmartMeterMeasurementDBCollection.InsertOneAsync(new MongoDBDatagramModelBuilder()
                 .SetMeasurementValue(pDatagram)
                 .CreateObject());
         }
@@ -74,12 +73,12 @@ namespace IWSN_Backend_Server.Services
         public Task<IEnumerable<MongoDBDatagramModel>> GetAllAsync()
         {
             // returns the user if it was found
-            return Task.FromResult<IEnumerable<MongoDBDatagramModel>>(this._SensorMeasurementDBCollection.Find(sensor => true).ToList());
+            return Task.FromResult<IEnumerable<MongoDBDatagramModel>>(this._SmartMeterMeasurementDBCollection.Find(sensor => true).ToList());
         }
 
         public IEnumerable<MongoDBDatagramModel> GetAll()
         {
-            return this._SensorMeasurementDBCollection.Find(sensor => true).ToList();
+            return this._SmartMeterMeasurementDBCollection.Find(sensor => true).ToList();
         }
     }
 }

@@ -1,5 +1,6 @@
 using IWSN_Backend_Server.Services;
 using IWSN_Backend_Server.Settings;
+using IWSN_Backend_Server.Settings.Mqtt;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using MQTTnet;
@@ -13,20 +14,29 @@ namespace IWSN_Backend_Server
 {
     public class Program
     {
-        static IManagedMqttClient client;
-        static MongoDBService sMService;
+        static IManagedMqttClient mqtt_client_p1;
+        static IManagedMqttClient mqtt_client_lm35;
+
+        static MongoDBSmartMeterService sMService;
+        static MongoDBTemperatureService tmpService;
 
         public static async Task Main(string[] args)
         {
-            await MqttConnectAsync();
-            await SubscribeAsync(MQTTSettings.Topic); // Subscribe on topic
+            sMService = MongoDBSmartMeterService.Instance; // Create Mongodb smartmeter measurement service
+            tmpService = MongoDBTemperatureService.Instance; // Create Mongodb temp measurement service
+
+            mqtt_client_p1 = new MqttFactory().CreateManagedMqttClient();
+            mqtt_client_lm35 = new MqttFactory().CreateManagedMqttClient();
+
+            await MqttConnectAsync(MqttClientType.MQTT_P1);
+            await MqttConnectAsync(MqttClientType.MQTT_LM35);
             
             // Run REST server API configurations
             CreateHostBuilder(args).Build().Run();
         }
 
         // Credit to => https://dzone.com/articles/mqtt-publishing-and-subscribing-messages-to-mqtt-b
-        public static async Task MqttConnectAsync()
+        public static async Task MqttConnectAsync(MqttClientType type)
         {
             string clientId = Guid.NewGuid().ToString(); // create a random MQTT client ID
             string mqttURI = MQTTSettings.BrokerHost; // MQTT hostname
@@ -53,34 +63,62 @@ namespace IWSN_Backend_Server
               .WithClientOptions(options)
               .Build();
 
-            sMService = MongoDBService.Instance; // Create Mongodb sensor measurement service
+            // create a new managed mqtt client for the mqtt messaging
 
-            client = new MqttFactory().CreateManagedMqttClient();
-
-            client.UseApplicationMessageReceivedHandler(e => 
+            switch (type)
             {
-                try
-                {
-                    string topic = e.ApplicationMessage.Topic;
-
-                    if (string.IsNullOrWhiteSpace(topic) == false)
+                case MqttClientType.MQTT_P1:
+                    mqtt_client_p1.UseApplicationMessageReceivedHandler(e =>
                     {
-                        string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                        Console.WriteLine($"Topic: {topic}. Message Received: {payload}");
+                        try
+                        {
+                            if (string.IsNullOrWhiteSpace(MQTTSettings.Topic_P1) == false)
+                            {
+                                string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                                Console.WriteLine($"Topic: {MQTTSettings.Topic_P1}. Message Received: {payload}");
 
-                        sMService.insertDatagramMeasurement(payload);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message, ex);
-                }
-            });
-            await client.StartAsync(managedOptions);
+                                sMService.InsertDatagramMeasurement(payload);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message, ex);
+                        }
+                    });
+                    await mqtt_client_p1.StartAsync(managedOptions);
+                    await SubscribeAsync(mqtt_client_p1 ,MQTTSettings.Topic_P1); // Subscribe on topic
+                    break;
+
+                case MqttClientType.MQTT_LM35:
+                    mqtt_client_lm35.UseApplicationMessageReceivedHandler(e =>
+                    {
+                        try
+                        {
+                            if (string.IsNullOrWhiteSpace(MQTTSettings.Topic_LM35) == false)
+                            {
+                                string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+                                Console.WriteLine($"Topic: {MQTTSettings.Topic_LM35}. Message Received: {payload}");
+
+                                tmpService.InsertTemperatureMeasurement(payload);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message, ex);
+                        }
+                    });
+                    await mqtt_client_lm35.StartAsync(managedOptions);
+                    await SubscribeAsync(mqtt_client_lm35, MQTTSettings.Topic_LM35); // Subscribe on topic
+                    break;
+
+                default:
+                    Console.WriteLine("Error!");
+                    throw new NotImplementedException();
+            }           
         }
 
         // Quality of Service = 1 => "At least once"
-        public static async Task SubscribeAsync(string topic, int qos = 1)
+        public static async Task SubscribeAsync(IManagedMqttClient client, string topic, int qos = 1)
         {
             await client.SubscribeAsync(new MqttTopicFilterBuilder()
             .WithTopic(topic)

@@ -6,8 +6,8 @@
 // ATTRIBUTES //
 
 // MQTT attributes
-const char* ssid = "VdR";
-const char* password = "vwjapderooij";
+const char* ssid = "Uplink_Vincent";
+const char* password = "UnifyVWJAP_23";
 const char* mqtt_devicename = "LM35Arduino";
 const char* mqtt_server = "plex.shitposts.nl";
 const char* mqtt_user = "waylon";
@@ -20,8 +20,7 @@ PubSubClient client(mqtt_server, 1883, espClient);
 // 
 const int DELAY_TIME = 10000;
 
-char data[8] = ""; // received string of XBee-nodes, ex.: 1,123
-int n = 0;
+char data[5] = ""; // received string of XBee-nodes, ex.: 12.34
 
 // METHODS //
 
@@ -66,12 +65,14 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()){
-    n = Serial.readBytesUntil('\n',data, 8);
-    data[n-1]='\0';
+  if (Serial.available()){                                         
+   // length of '6' is required for the 5 characters (12345 => "24.14") + the escape character ('\0')    
+   // which gets added at a later moment                            
+    int n = Serial.readBytesUntil('\n', data, 6); 
+    data[n-1]='\0'; // <- here the escape character gets added to ensure a proper char* type is build
     if(n){ // if valid input
       Serial.println(data);
-      client.publish(topic, (char*) data);
+      client.publish(topic, data);
     }
   }
 
