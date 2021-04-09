@@ -97,9 +97,16 @@ namespace IWSN_Backend_Server
                             if (string.IsNullOrWhiteSpace(MQTTSettings.Topic_LM35) == false)
                             {
                                 string payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
-                                Console.WriteLine($"Topic: {MQTTSettings.Topic_LM35}. Message Received: {payload}");
 
-                                tmpService.InsertTemperatureMeasurement(payload);
+                                if (payload.Length == 5)
+                                {
+                                    Console.WriteLine($"Topic: {MQTTSettings.Topic_LM35}. Message Received: {payload}");
+                                    tmpService.InsertTemperatureMeasurement(payload);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("ERROR : Sensor Desync issue occured filtering out measurement!");
+                                }                              
                             }
                         }
                         catch (Exception ex)

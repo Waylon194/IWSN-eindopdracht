@@ -17,7 +17,6 @@ namespace IWSN_Backend_Server.Controllers.ControllerInstances
     public class IWSNSmartMeterController : ControllerBase
     {
         private readonly MongoDBSmartMeterService _SensorMeasurementService;
-        private readonly MongoDBTemperatureService _TempMeasurementService;
 
         private readonly int MAX_LATEST_RANGE_ALLOWED = 20;
 
