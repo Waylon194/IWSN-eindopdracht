@@ -17,10 +17,7 @@ const char* topic = "lm35Temp";
 WiFiClient espClient;
 PubSubClient client(mqtt_server, 1883, espClient);
 
-// 
-const int DELAY_TIME = 10000;
-
-char data[5] = ""; // received string of XBee-nodes, ex.: 12.34
+const int DELAY_TIME = 2500;
 
 // METHODS //
 
@@ -43,7 +40,9 @@ void setup_wifi() {
 }
 
 void setup_mqtt() {
+  Serial.println("Setting up the mqtt connection");
   if (client.connect(mqtt_devicename, mqtt_user, mqtt_pass)) {
+    Serial.println("mqtt connection established!");    
     client.setCallback(callback);
     client.publish(topic, "Connected!");
   }
@@ -64,24 +63,24 @@ void setup() {
   setup_mqtt();
 }
 
-void loop() {
-  if (Serial.available()){                                         
+void loop() {  
+  if (Serial.available()){         
+  char data[6] = ""; // received string of XBee-nodes, ex.: 12.34                                    
    // length of '6' is required for the 5 characters (12345 => "24.14") + the escape character ('\0')    
    // which gets added at a later moment                            
-    int n = Serial.readBytesUntil('\n', data, 6); 
+    int n = Serial.readBytesUntil('\n', data, 6); // status of the read (n <= 0 == false || n > 0 == true)
     data[n-1]='\0'; // <- here the escape character gets added to ensure a proper char* type is build
+    
     if(n){ // if valid input
       Serial.println(data);
       client.publish(topic, data);
+      delay(DELAY_TIME);      
     }
   }
-
-  if (!client.connected()) {
-    Serial.println((String)mqtt_devicename + " MQTT disconnected");
-    setup_mqtt();
-    delay(5000);
+  else {
+    Serial.println("No data is available!");
   }
-  client.loop();
-
-  delay(DELAY_TIME);    
+  if (!client.connected()) {
+    ESP.reset();
+  }  
 }
