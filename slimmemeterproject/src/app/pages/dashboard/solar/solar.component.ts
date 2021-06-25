@@ -14,8 +14,8 @@ declare const echarts: any;
         <div echarts [options]="option" class="echart">
         </div>
         <div class="info">
-          <div class="h4 value">0.000 watt</div>
-          <div class="details subtitle-2"><span>van de</span> 5.000 watt</div>
+          <div class="h4 value">0.00 kW</div>
+          <div class="details subtitle-2"><span>van de</span> 5kW</div>
         </div>
       </nb-card-body>
     </nb-card>
